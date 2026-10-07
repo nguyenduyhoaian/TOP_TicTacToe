@@ -43,40 +43,45 @@ const GameController = (() => {
     }
 
     let activePlayer = player1
-    while (selectedPosition.length < 9) {
-        let validturn = false
-        while (!validturn) {
-            const input = parseInt(prompt(`${activePlayer.getName()} turn, enter your choice:`))
-            validturn = !selectedPosition.includes(input)
-            if (validturn) {
-                activePlayer.setChoices(input)
-                selectedPosition.push(input)
-            } else {
-                console.log(`cell number ${input} already be checked`)
-            }
+    const cellclick = (cellID) => {
+        console.log(`${activePlayer.getName()} click cell ${cellID} `)
+        if (GameBoard.getBoard().length < 8 && !GameBoard.getBoard().includes(cellID)) {
+            activePlayer.setChoices(cellID)
+            GameBoard.mark(cellID, activePlayer.getToken())
         }
+
         if (checkWin(activePlayer.getChoices())) {
-            alert("end game")
+            alert(`${activePlayer.getName} win`)
+            return
+        }
+
+        if (GameBoard.getBoard().length===8){
+            alert("End game, nobody win")
             return
         }
 
         //Change player turn
         activePlayer = activePlayer === player1 ? player2 : player1
     }
-})
+
+    return { cellclick }
+})()
 
 //Display
 const boarDisplay = document.querySelector("#boardDisplay")
 
 let buttonId = 0
 for (let i = 0; i < 3; i++) {
-    const row =  document.createElement("div")
+    const row = document.createElement("div")
     for (let j = 0; j < 3; j++) {
         const cell = document.createElement("button")
-        cell.setAttribute("id",buttonId)
+        cell.setAttribute("id", buttonId)
         cell.classList.add("gameButton")
         buttonId++
         row.appendChild(cell)
+        cell.addEventListener("click", e => {
+            GameController.cellclick(cell.id)
+        })
     }
     boarDisplay.appendChild(row)
 }
